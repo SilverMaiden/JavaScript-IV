@@ -8,15 +8,20 @@ Prototype Refactor
 
 */
 
-function GameObject(character) {
-    this.createdAt = character.createdAt,
-    this.name = character.name,
-    this.dimensions = character.dimensions
+class GameObject {
+    //constructor
+    constructor(character) {
+        //attributes
+        this.createdAt = character.createdAt,
+        this.name = character.name,
+        this.dimensions = character.dimensions
+    }
+    //methods
+    destroy() {
+        return `${this.name} was removed from the game.`
+    }
 }
 
-GameObject.prototype.destroy = function(){
-    return `${this.name} was removed from the game.`
-}
 
 /*
   === CharacterStats ===
@@ -25,15 +30,18 @@ GameObject.prototype.destroy = function(){
   * should inherit destroy() from GameObject's prototype
 */
 
-function CharacterStats(attributes) {
-    GameObject.call(this, attributes);
-    this.healthPoints = attributes.healthPoints;
-}
+class CharacterStats extends GameObject{
+    //constructor
+    constructor(attributes) {
+        //attributes
+        super(attributes);
+        this.healthPoints = attributes.healthPoints;
+    }
+    //methods
+    takeDamage() {
+        return `${this.name} took damage.`
+    }
 
-CharacterStats.prototype = Object.create(GameObject.prototype);
-
-CharacterStats.prototype.takeDamage = function(){
-    return `${this.name} took damage.`
 }
 
 
@@ -47,53 +55,64 @@ CharacterStats.prototype.takeDamage = function(){
   * should inherit takeDamage() from CharacterStats
 */
 
-function Humanoid(object) {
-    CharacterStats.call(this, object);
-    this.team = object.team,
-    this.weapons = object.weapons,
-    this.language = object.language
+class Humanoid extends CharacterStats{
+    //constructor
+    constructor(object) {
+        //attributes
+        super(object);
+        this.team = object.team,
+        this.weapons = object.weapons,
+        this.language = object.language
+    }
+    //methods
+    greet() {
+        return `${this.name} offers a greeting in ${this.language}`;
+    }
 };
 
-Humanoid.prototype = Object.create(CharacterStats.prototype);
-Humanoid.prototype.greet = function(){
-    return `${this.name} offers a greeting in ${this.language}`;
-};
 
 
-function Hero(object) {
-    Humanoid.call(this, object);
-    this.status = object.status;
-
-
-}
-Hero.prototype = Object.create(Humanoid.prototype);
-Hero.prototype.lightAttack = function(character) {
-    let attackStrength = Math.ceil(Math.random() * 10);
-    if (attackStrength > 2) {
-        character.healthPoints -= attackStrength;
-        if (character.healthPoints <= 0) {
+class Hero extends Humanoid{
+    //constructor
+    constructor(object){
+        //attributes
+        super(object);
+        this.status = object.status;
+    }
+    //methods
+    lightAttack(character) {
+        let attackStrength = Math.ceil(Math.random() * 10);
+        if (attackStrength > 2) {
+            character.healthPoints -= attackStrength;
+            if (character.healthPoints <= 0) {
+            }
+            return `${this.name} landed a successfull ${this.weapons[0]} attack on ${character.name} for ${attackStrength} damage!`;
+        } else {
+            return `${this.name} did not successfully land an attack.`;
         }
-        return `${this.name} landed a successfull ${this.weapons[0]} attack on ${character.name} for ${attackStrength} damage!`;
-    } else {
-        return `${this.name} did not successfully land an attack.`;
-    }
-};
-
-function Villain(object) {
-    Humanoid.call(this, object);
-    this.status = object.status;
+    };
 }
 
-Villain.prototype = Object.create(Humanoid.prototype);
-Villain.prototype.darkAttack = function(character) {
-    let attackStrength = Math.ceil(Math.random() * 4);
-    if (attackStrength > 3) {
-        character.healthPoints -= attackStrength;
-        return `${this.name} landed a successfull ${this.weapons[0]} attack on ${character.name} for ${attackStrength} damage!`;
-    } else {
-        return `${this.name} did not successfully land an attack.`;
+
+class Villain extends Humanoid{
+    //constructor
+    constructor(object) {
+        //attributes
+        super(object);
+        this.status = object.status;
+    }
+    //methods
+    darkAttack(character) {
+        let attackStrength = Math.ceil(Math.random() * 4);
+        if (attackStrength > 3) {
+            character.healthPoints -= attackStrength;
+            return `${this.name} landed a successfull ${this.weapons[0]} attack on ${character.name} for ${attackStrength} damage!`;
+        } else {
+            return `${this.name} did not successfully land an attack.`;
+        }
     }
 }
+
 
 /*
   * Inheritance chain: GameObject -> CharacterStats -> Humanoid
